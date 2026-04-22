@@ -51,7 +51,8 @@ export async function POST(req: NextRequest) {
     }
 
     case 'customer.subscription.updated': {
-      const sub = event.data.object as import('stripe').Stripe.Subscription;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const sub = event.data.object as any;
       const userId = sub.metadata?.userId;
       if (userId) {
         await adminDb.collection('users').doc(userId)
