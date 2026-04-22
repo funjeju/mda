@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { onSnapshot, query, where, orderBy } from 'firebase/firestore';
+import { onSnapshot, query, where } from 'firebase/firestore';
 import { journalEntriesCol } from '../firestore/collections';
 
 export interface JournalEntryDoc {
@@ -25,32 +25,30 @@ export function useJournalEntries(teamId: string, userId: string) {
   useEffect(() => {
     const q = query(
       journalEntriesCol(teamId),
-      where('deleted_at', '==', null),
       where('created_by', '==', userId),
-      orderBy('created_at', 'desc'),
     );
 
     const unsub = onSnapshot(q, (snap) => {
-      setEntries(
-        snap.docs.map((d) => {
-          const data = d.data();
-          return {
-            id: d.id,
-            team_id: data.team_id,
-            content: data.content ?? '',
-            emotion: data.emotion ?? null,
-            mood: data.mood ?? 'event',
-            is_private: data.is_private ?? true,
-            tags: data.tags ?? [],
-            ai_generated: data.ai_generated ?? false,
-            ai_confidence: data.ai_confidence ?? null,
-            created_at: data.created_at?.toDate?.() ?? null,
-            created_by: data.created_by,
-          } as JournalEntryDoc;
-        }),
-      );
+      const mapped = snap.docs.map((d) => {
+        const data = d.data();
+        return {
+          id: d.id,
+          team_id: data.team_id,
+          content: data.content ?? '',
+          emotion: data.emotion ?? null,
+          mood: data.mood ?? 'event',
+          is_private: data.is_private ?? true,
+          tags: data.tags ?? [],
+          ai_generated: data.ai_generated ?? false,
+          ai_confidence: data.ai_confidence ?? null,
+          created_at: data.created_at?.toDate?.() ?? null,
+          created_by: data.created_by,
+        } as JournalEntryDoc;
+      });
+      mapped.sort((a, b) => (b.created_at?.getTime() ?? 0) - (a.created_at?.getTime() ?? 0));
+      setEntries(mapped);
       setLoading(false);
-    });
+    }, () => setLoading(false));
 
     return unsub;
   }, [teamId, userId]);

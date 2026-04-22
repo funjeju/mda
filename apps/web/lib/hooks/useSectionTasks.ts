@@ -20,12 +20,13 @@ export function useSectionTasks(teamId: string, projectId: string, sectionId: st
       tasksCol(teamId, projectId).withConverter(taskConverter),
       where('deleted_at', '==', null),
       where('section_id', '==', sectionId),
-      orderBy('position', 'asc'),
     );
     return onSnapshot(q, (snap) => {
-      setTasks(snap.docs.map((d) => d.data()));
+      const tasks = snap.docs.map((d) => d.data());
+      tasks.sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+      setTasks(tasks);
       setLoading(false);
-    });
+    }, () => setLoading(false));
   }, [teamId, projectId, sectionId]);
 
   const createTask = useCallback(

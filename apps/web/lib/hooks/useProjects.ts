@@ -38,12 +38,17 @@ export function useProjects(teamId: string) {
     const q = query(
       projectsCol(teamId).withConverter(projectConverter),
       where('deleted_at', '==', null),
-      orderBy('created_at', 'desc'),
     );
     const unsub = onSnapshot(q, (snap) => {
-      setProjects(snap.docs.map((d) => d.data()));
+      const projects = snap.docs.map((d) => d.data());
+      projects.sort((a, b) => {
+        const aT = (a.created_at as unknown as { toDate?: () => Date })?.toDate?.()?.getTime() ?? 0;
+        const bT = (b.created_at as unknown as { toDate?: () => Date })?.toDate?.()?.getTime() ?? 0;
+        return bT - aT;
+      });
+      setProjects(projects);
       setLoading(false);
-    });
+    }, () => setLoading(false));
     return unsub;
   }, [teamId]);
 
@@ -117,12 +122,13 @@ export function useSections(teamId: string, projectId: string) {
     const q = query(
       sectionsCol(teamId, projectId).withConverter(sectionConverter),
       where('deleted_at', '==', null),
-      orderBy('position', 'asc'),
     );
     const unsub = onSnapshot(q, (snap) => {
-      setSections(snap.docs.map((d) => d.data()));
+      const secs = snap.docs.map((d) => d.data());
+      secs.sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+      setSections(secs);
       setLoading(false);
-    });
+    }, () => setLoading(false));
     return unsub;
   }, [teamId, projectId]);
 

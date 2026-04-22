@@ -38,13 +38,18 @@ export function useTodayTasks(teamId: string, userId: string) {
       independentTasksCol(teamId).withConverter(taskConverter),
       where('deleted_at', '==', null),
       where('created_by', '==', userId),
-      orderBy('created_at', 'desc'),
     );
 
     const unsubscribe = onSnapshot(q, (snap) => {
-      setTasks(snap.docs.map((d) => d.data()));
+      const tasks = snap.docs.map((d) => d.data());
+      tasks.sort((a, b) => {
+        const aT = (a.created_at as unknown as { toDate?: () => Date })?.toDate?.()?.getTime() ?? 0;
+        const bT = (b.created_at as unknown as { toDate?: () => Date })?.toDate?.()?.getTime() ?? 0;
+        return bT - aT;
+      });
+      setTasks(tasks);
       setLoading(false);
-    });
+    }, () => setLoading(false));
 
     return unsubscribe;
   }, [teamId, userId]);

@@ -37,7 +37,7 @@ export function useNotifications(userId: string) {
         };
       }));
       setLoading(false);
-    });
+    }, () => setLoading(false));
 
     return unsub;
   }, [userId]);
