@@ -1,0 +1,163 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "tasks_independent",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "deleted_at", "order": "ASCENDING" },
+        { "fieldPath": "created_by", "order": "ASCENDING" },
+        { "fieldPath": "created_at", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "tasks_independent",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "deleted_at", "order": "ASCENDING" },
+        { "fieldPath": "created_by", "order": "ASCENDING" },
+        { "fieldPath": "due_date", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "tasks",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "deleted_at", "order": "ASCENDING" },
+        { "fieldPath": "section_id", "order": "ASCENDING" },
+        { "fieldPath": "position", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "projects",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "deleted_at", "order": "ASCENDING" },
+        { "fieldPath": "created_at", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "sections",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "deleted_at", "order": "ASCENDING" },
+        { "fieldPath": "position", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "journal_entries",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "deleted_at", "order": "ASCENDING" },
+        { "fieldPath": "created_by", "order": "ASCENDING" },
+        { "fieldPath": "created_at", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "person_contacts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "deleted_at", "order": "ASCENDING" },
+        { "fieldPath": "created_by", "order": "ASCENDING" },
+        { "fieldPath": "last_mentioned_at", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "daily_entries",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "deleted_at", "order": "ASCENDING" },
+        { "fieldPath": "created_by", "order": "ASCENDING" },
+        { "fieldPath": "entered_at", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "input_logs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "created_by", "order": "ASCENDING" },
+        { "fieldPath": "processed", "order": "ASCENDING" },
+        { "fieldPath": "created_at", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "tasks_independent",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "external_id", "order": "ASCENDING" },
+        { "fieldPath": "deleted_at", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "custom_stickers",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "created_by", "order": "ASCENDING" },
+        { "fieldPath": "created_at", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "community_stickers",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "shared", "order": "ASCENDING" },
+        { "fieldPath": "created_at", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "activity_feed",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "created_at", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "comments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "deleted_at", "order": "ASCENDING" },
+        { "fieldPath": "created_at", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "api_keys",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "key", "order": "ASCENDING" },
+        { "fieldPath": "active", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "api_keys",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "user_id", "order": "ASCENDING" },
+        { "fieldPath": "active", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "slack_user_mappings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "slack_user_id", "order": "ASCENDING" },
+        { "fieldPath": "slack_team_domain", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "tasks_independent",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "deleted_at", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "created_at", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "settings",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        { "fieldPath": "google_calendar.token_expires_at", "order": "ASCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

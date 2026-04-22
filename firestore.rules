@@ -1,0 +1,233 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return request.auth.uid == uid;
+    }
+
+    function isMember(teamId) {
+      return isAuth() && exists(
+        /databases/$(database)/documents/teams/$(teamId)/members/$(request.auth.uid)
+      );
+    }
+
+    function canWrite(teamId) {
+      return isMember(teamId) &&
+        get(/databases/$(database)/documents/teams/$(teamId)/members/$(request.auth.uid))
+          .data.role in ['owner', 'admin', 'member'];
+    }
+
+    function isTeamOwner(teamId) {
+      return isAuth() &&
+        get(/databases/$(database)/documents/teams/$(teamId)/members/$(request.auth.uid))
+          .data.role in ['owner', 'admin'];
+    }
+
+    // 사용자 문서
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow write: if isOwner(userId);
+
+      match /private/{docId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      // 사용자 설정 (알림 설정, 구독 정보)
+      match /settings/{settingId} {
+        allow read: if isOwner(userId);
+        // notification_prefs: 클라이언트 쓰기 허용
+        // integrations: 클라이언트는 Slack webhook URL만 쓸 수 있음
+        //   OAuth access_token 등 민감 필드는 서버(Admin SDK)만 씀
+        // subscription, google_calendar 토큰: Admin SDK 전용
+        allow write: if isOwner(userId) && settingId == 'notification_prefs';
+        allow update: if isOwner(userId) && settingId == 'integrations' &&
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['slack_webhook_url', 'slack_updated_at']);
+        allow create: if isOwner(userId) && settingId == 'integrations' &&
+          request.resource.data.keys().hasOnly(['slack_webhook_url', 'slack_updated_at']);
+      }
+
+      // FCM 토큰 (본인만 관리)
+      match /fcm_tokens/{token} {
+        allow read, write: if isOwner(userId);
+      }
+
+      // 사용자 알림 (Cloud Function이 쓰고, 본인만 읽음 처리)
+      match /notifications/{notifId} {
+        allow read: if isOwner(userId);
+        allow update: if isOwner(userId) &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+        allow create, delete: if false; // Cloud Function 전용
+      }
+    }
+
+    // 글로벌 초대 코드 (수락 API에서 조회)
+    match /invite_codes/{code} {
+      allow read: if isAuth();
+      allow write: if false; // API Route 전용
+    }
+
+    // API 키 (F-117) — Admin SDK 전용, 클라이언트 직접 접근 불가
+    match /api_keys/{keyId} {
+      allow read, write: if false;
+    }
+
+    // Slack 유저 매핑 (F-115) — Admin SDK 전용
+    match /slack_user_mappings/{mappingId} {
+      allow read, write: if false;
+    }
+
+    // 알림 중복 방지 로그 (캘린더 리마인더 Cron) — Admin SDK 전용
+    match /notification_sent_log/{logId} {
+      allow read, write: if false;
+    }
+
+    // 팀 문서
+    match /teams/{teamId} {
+      allow read: if isMember(teamId);
+      allow create: if isAuth();
+      allow update: if canWrite(teamId);
+      allow delete: if false;
+
+      // 멤버 — 읽기: 팀원 전체, 쓰기: Admin SDK(서버) 전용, 오너/어드민만 직접 수정
+      match /members/{memberId} {
+        allow read: if isMember(teamId);
+        allow write: if isTeamOwner(teamId);
+      }
+
+      // 팀 초대 링크 (팀 오너/어드민만 관리, 멤버는 읽기 가능)
+      match /invites/{inviteId} {
+        allow read: if isMember(teamId);
+        allow create: if isTeamOwner(teamId);
+        allow delete: if isTeamOwner(teamId);
+        allow update: if false;
+      }
+
+      // 프로젝트
+      match /projects/{projectId} {
+        allow read: if isMember(teamId);
+        allow write: if canWrite(teamId);
+
+        match /sections/{sectionId} {
+          allow read: if isMember(teamId);
+          allow write: if canWrite(teamId);
+        }
+
+        match /tasks/{taskId} {
+          allow read: if isMember(teamId);
+          allow write: if canWrite(teamId);
+
+          // 프로젝트 태스크 댓글 (F-104)
+          match /comments/{commentId} {
+            allow read: if isMember(teamId);
+            allow create: if canWrite(teamId);
+            allow update: if canWrite(teamId) &&
+              request.resource.data.diff(resource.data).affectedKeys()
+                .hasOnly(['reactions', 'deleted_at', 'updated_at']);
+            allow delete: if false;
+          }
+        }
+      }
+
+      // 독립 태스크
+      match /tasks_independent/{taskId} {
+        allow read: if isMember(teamId);
+        allow write: if canWrite(teamId);
+      }
+
+      // 일일 엔트리
+      match /daily_entries/{entryId} {
+        allow read: if isMember(teamId);
+        allow write: if canWrite(teamId);
+      }
+
+      // 일기 (private 항목은 작성자만)
+      match /journal_entries/{entryId} {
+        allow read: if isMember(teamId) &&
+          (resource == null ||
+           resource.data.is_private == false ||
+           resource.data.created_by == request.auth.uid);
+        allow create: if canWrite(teamId) &&
+          request.resource.data.created_by == request.auth.uid;
+        allow update: if canWrite(teamId) &&
+          (resource.data.is_private == false ||
+           resource.data.created_by == request.auth.uid);
+        allow delete: if false;
+      }
+
+      // 저녁 보고서
+      match /daily_reports/{reportId} {
+        allow read: if isMember(teamId);
+        allow write: if canWrite(teamId);
+      }
+
+      // 인맥
+      match /person_contacts/{contactId} {
+        allow read: if isMember(teamId);
+        allow write: if canWrite(teamId);
+      }
+
+      // 팀 활동 피드 (F-105)
+      match /activity_feed/{activityId} {
+        allow read: if isMember(teamId);
+        allow create: if canWrite(teamId);
+        allow update, delete: if false;
+      }
+
+      // 태스크 댓글 (F-104) — tasks_independent 서브컬렉션
+      match /tasks_independent/{taskId}/comments/{commentId} {
+        allow read: if isMember(teamId);
+        allow create: if canWrite(teamId);
+        allow update: if canWrite(teamId) &&
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['reactions', 'deleted_at', 'updated_at']);
+        allow delete: if false;
+      }
+
+      // 원본 입력 로그 (본인 것만 읽기, 생성 허용, 수정은 AI 결과 업데이트용)
+      match /input_logs/{logId} {
+        allow read: if isMember(teamId) &&
+          resource.data.created_by == request.auth.uid;
+        allow create: if canWrite(teamId) &&
+          request.resource.data.created_by == request.auth.uid;
+        allow update: if canWrite(teamId) &&
+          resource.data.created_by == request.auth.uid &&
+          // ai_result, processed 필드만 업데이트 허용
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['ai_result', 'processed']);
+        allow delete: if false; // 원본 보존 — 삭제 금지
+      }
+
+      // 통합 토큰 (직접 접근 금지)
+      match /integrations/{provider} {
+        allow read: if false;
+        allow write: if false;
+      }
+
+      // 커스텀 스티커 (F-087)
+      match /custom_stickers/{stickerId} {
+        allow read: if isMember(teamId);
+        allow create: if canWrite(teamId) &&
+          request.resource.data.created_by == request.auth.uid;
+        allow update: if canWrite(teamId) &&
+          resource.data.created_by == request.auth.uid &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['shared']);
+        allow delete: if canWrite(teamId) &&
+          resource.data.created_by == request.auth.uid;
+      }
+    }
+
+    // 커뮤니티 스티커 (F-087) — 공개 읽기, 인증된 사용자 생성
+    match /community_stickers/{stickerId} {
+      allow read: if isAuth();
+      allow create: if isAuth() &&
+        request.resource.data.created_by == request.auth.uid;
+      allow update, delete: if false;
+    }
+  }
+}

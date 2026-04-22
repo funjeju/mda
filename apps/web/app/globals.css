@@ -1,0 +1,359 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ─── MDA 디자인 토큰 ─── */
+@theme inline {
+  /* 폰트 */
+  --font-sans: 'Pretendard', 'Apple SD Gothic Neo', -apple-system, sans-serif;
+  --font-display: 'SUIT', 'Pretendard', -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'D2Coding', monospace;
+  --font-handwriting: 'Gaegu', 'Nanum Pen Script', cursive;
+
+  /* shadcn 시맨틱 토큰 매핑 */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* 라운드 */
+  --radius-sm: calc(var(--radius) * 0.6);   /* 6px */
+  --radius-md: var(--radius);               /* 10px */
+  --radius-lg: calc(var(--radius) * 1.6);   /* 16px */
+  --radius-xl: calc(var(--radius) * 2.4);   /* 24px */
+  --radius-2xl: calc(var(--radius) * 3.2);  /* 32px */
+  --radius-full: 9999px;
+  --radius-cell: calc(var(--radius) * 1.6); /* 만다라트 셀 */
+  --radius-card: calc(var(--radius) * 2.4); /* 카드 */
+
+  /* MDA 확장 색상 */
+  --color-peach: var(--peach);
+  --color-salmon: var(--salmon);
+  --color-mustard: var(--mustard);
+  --color-mint: var(--mint);
+  --color-sage: var(--sage);
+  --color-lavender: var(--lavender);
+  --color-rose: var(--rose);
+  --color-coral: var(--coral);
+  --color-ivory: var(--ivory);
+  --color-cream: var(--cream);
+  --color-beige: var(--beige);
+  --color-sand: var(--sand);
+  --color-ink-900: var(--ink-900);
+  --color-ink-700: var(--ink-700);
+  --color-ink-500: var(--ink-500);
+  --color-ink-300: var(--ink-300);
+  --color-ink-100: var(--ink-100);
+
+  /* 그림자 */
+  --shadow-warm-sm: 0 2px 8px oklch(from #C9B896 l c h / 0.15);
+  --shadow-warm-md: 0 4px 16px oklch(from #C9B896 l c h / 0.20);
+}
+
+/* ─── 라이트 모드 ─── */
+:root {
+  /* 베이스 팔레트 */
+  --ivory:    #FDFBF7;
+  --cream:    #F6F1E7;
+  --beige:    #E9DFC9;
+  --sand:     #C9B896;
+  --ink-900:  #2D2A26;
+  --ink-700:  #4A453E;
+  --ink-500:  #7C756B;
+  --ink-300:  #ADA598;
+  --ink-100:  #E8E3D7;
+
+  /* 액센트 팔레트 */
+  --peach:    #F4A587;
+  --salmon:   #E88468;
+  --mustard:  #D4A547;
+  --mint:     #8FBFA9;
+  --sage:     #6FA088;
+  --lavender: #B5A7D4;
+  --rose:     #D4A5B5;
+  --coral:    #EB8B7C;
+
+  /* shadcn 시맨틱 */
+  --background:            #FDFBF7;
+  --foreground:            #2D2A26;
+  --card:                  #F6F1E7;
+  --card-foreground:       #2D2A26;
+  --popover:               #FFFFFF;
+  --popover-foreground:    #2D2A26;
+  --primary:               #D4A547;
+  --primary-foreground:    #FFFFFF;
+  --secondary:             #F6F1E7;
+  --secondary-foreground:  #4A453E;
+  --muted:                 #E9DFC9;
+  --muted-foreground:      #7C756B;
+  --accent:                #F6F1E7;
+  --accent-foreground:     #2D2A26;
+  --destructive:           #EB8B7C;
+  --border:                #E9DFC9;
+  --input:                 #E9DFC9;
+  --ring:                  #D4A547;
+  --radius:                0.625rem; /* 10px */
+}
+
+/* ─── 다크 모드 ─── */
+.dark {
+  --ivory:    #1C1917;
+  --cream:    #27231F;
+  --beige:    #3D3833;
+  --sand:     #5C5650;
+  --ink-900:  #F5F1E8;
+  --ink-700:  #C5BEB0;
+  --ink-500:  #8C8578;
+  --ink-300:  #605A52;
+  --ink-100:  #3D3833;
+
+  --background:            #1C1917;
+  --foreground:            #F5F1E8;
+  --card:                  #27231F;
+  --card-foreground:       #F5F1E8;
+  --popover:               #34302B;
+  --popover-foreground:    #F5F1E8;
+  --primary:               #D4A547;
+  --primary-foreground:    #1C1917;
+  --secondary:             #27231F;
+  --secondary-foreground:  #C5BEB0;
+  --muted:                 #3D3833;
+  --muted-foreground:      #8C8578;
+  --accent:                #3D3833;
+  --accent-foreground:     #F5F1E8;
+  --destructive:           #EB8B7C;
+  --border:                oklch(1 0 0 / 10%);
+  --input:                 oklch(1 0 0 / 15%);
+  --ring:                  #D4A547;
+}
+
+/* ─── 테마 프리셋 (F-084) ─── */
+/* ocean: 오션 블루 */
+[data-theme="ocean"] {
+  --ivory:    #F5FAFE;
+  --cream:    #E8F4FD;
+  --beige:    #C8E4F5;
+  --sand:     #9AC8E8;
+  --ink-900:  #0D2C45;
+  --ink-700:  #1D4A6E;
+  --ink-500:  #3A7DAE;
+  --ink-300:  #7AADCE;
+  --ink-100:  #BDDDF0;
+  --mustard:  #2A8CC4;
+  --mint:     #50B8D0;
+  --coral:    #E07860;
+  --lavender: #5880C4;
+  --background: #F5FAFE;
+  --foreground: #0D2C45;
+  --primary:  #2A8CC4;
+  --primary-foreground: #FFFFFF;
+  --border:   #C8E4F5;
+  --ring:     #2A8CC4;
+  --card:     #E8F4FD;
+  --card-foreground: #0D2C45;
+  --muted:    #C8E4F5;
+  --muted-foreground: #3A7DAE;
+}
+
+/* forest: 포레스트 그린 */
+[data-theme="forest"] {
+  --ivory:    #F5FAF5;
+  --cream:    #E8F5EA;
+  --beige:    #C8E8CC;
+  --sand:     #96C89C;
+  --ink-900:  #142812;
+  --ink-700:  #2D5A28;
+  --ink-500:  #4A8048;
+  --ink-300:  #7AAE78;
+  --ink-100:  #BEDDBC;
+  --mustard:  #2D7A47;
+  --mint:     #5BAA70;
+  --coral:    #E07860;
+  --lavender: #7A9E60;
+  --background: #F5FAF5;
+  --foreground: #142812;
+  --primary:  #2D7A47;
+  --primary-foreground: #FFFFFF;
+  --border:   #C8E8CC;
+  --ring:     #2D7A47;
+  --card:     #E8F5EA;
+  --card-foreground: #142812;
+  --muted:    #C8E8CC;
+  --muted-foreground: #4A8048;
+}
+
+/* lavender: 라벤더 */
+[data-theme="lavender"] {
+  --ivory:    #F9F7FD;
+  --cream:    #F0EBFB;
+  --beige:    #DDD3F5;
+  --sand:     #C0B0E8;
+  --ink-900:  #2A1A50;
+  --ink-700:  #4A3878;
+  --ink-500:  #7B61A8;
+  --ink-300:  #A590CC;
+  --ink-100:  #D8CCEE;
+  --mustard:  #7B61C4;
+  --mint:     #A590D8;
+  --coral:    #E07878;
+  --lavender: #9B88CC;
+  --background: #F9F7FD;
+  --foreground: #2A1A50;
+  --primary:  #7B61C4;
+  --primary-foreground: #FFFFFF;
+  --border:   #DDD3F5;
+  --ring:     #7B61C4;
+  --card:     #F0EBFB;
+  --card-foreground: #2A1A50;
+  --muted:    #DDD3F5;
+  --muted-foreground: #7B61A8;
+}
+
+/* rose: 로즈 핑크 */
+[data-theme="rose"] {
+  --ivory:    #FDF5F8;
+  --cream:    #FAE9EF;
+  --beige:    #F0C8D9;
+  --sand:     #E0A0B8;
+  --ink-900:  #3D1020;
+  --ink-700:  #6A2840;
+  --ink-500:  #A04868;
+  --ink-300:  #C88098;
+  --ink-100:  #ECC0D0;
+  --mustard:  #C4617B;
+  --mint:     #D48FA5;
+  --coral:    #E05050;
+  --lavender: #B870A0;
+  --background: #FDF5F8;
+  --foreground: #3D1020;
+  --primary:  #C4617B;
+  --primary-foreground: #FFFFFF;
+  --border:   #F0C8D9;
+  --ring:     #C4617B;
+  --card:     #FAE9EF;
+  --card-foreground: #3D1020;
+  --muted:    #F0C8D9;
+  --muted-foreground: #A04868;
+}
+
+/* slate: 슬레이트 */
+[data-theme="slate"] {
+  --ivory:    #F7F9FC;
+  --cream:    #EDF1F7;
+  --beige:    #D8E2EE;
+  --sand:     #B0C0D8;
+  --ink-900:  #1A2233;
+  --ink-700:  #2E3F5C;
+  --ink-500:  #4A6890;
+  --ink-300:  #7898B8;
+  --ink-100:  #C0D0E4;
+  --mustard:  #4A6890;
+  --mint:     #6888A8;
+  --coral:    #C05050;
+  --lavender: #607898;
+  --background: #F7F9FC;
+  --foreground: #1A2233;
+  --primary:  #4A6890;
+  --primary-foreground: #FFFFFF;
+  --border:   #D8E2EE;
+  --ring:     #4A6890;
+  --card:     #EDF1F7;
+  --card-foreground: #1A2233;
+  --muted:    #D8E2EE;
+  --muted-foreground: #4A6890;
+}
+
+/* midnight: 미드나잇 (항상 다크) */
+[data-theme="midnight"] {
+  --ivory:    #0F1520;
+  --cream:    #1A2232;
+  --beige:    #243040;
+  --sand:     #384858;
+  --ink-900:  #E8F0FA;
+  --ink-700:  #B8C8E0;
+  --ink-500:  #7898B8;
+  --ink-300:  #506888;
+  --ink-100:  #384858;
+  --mustard:  #4A90D9;
+  --mint:     #50B8C4;
+  --coral:    #E07878;
+  --lavender: #8888CC;
+  --background: #0F1520;
+  --foreground: #E8F0FA;
+  --primary:  #4A90D9;
+  --primary-foreground: #0F1520;
+  --border:   #243040;
+  --ring:     #4A90D9;
+  --card:     #1A2232;
+  --card-foreground: #E8F0FA;
+  --muted:    #243040;
+  --muted-foreground: #7898B8;
+}
+
+/* ember: 앰버 오렌지 */
+[data-theme="ember"] {
+  --ivory:    #FDF8F4;
+  --cream:    #FAF0E6;
+  --beige:    #F0D8C0;
+  --sand:     #E0B890;
+  --ink-900:  #2A1800;
+  --ink-700:  #503000;
+  --ink-500:  #804818;
+  --ink-300:  #B07840;
+  --ink-100:  #DDB888;
+  --mustard:  #C47830;
+  --mint:     #8FAA70;
+  --coral:    #E06040;
+  --lavender: #A87848;
+  --background: #FDF8F4;
+  --foreground: #2A1800;
+  --primary:  #C47830;
+  --primary-foreground: #FFFFFF;
+  --border:   #F0D8C0;
+  --ring:     #C47830;
+  --card:     #FAF0E6;
+  --card-foreground: #2A1800;
+  --muted:    #F0D8C0;
+  --muted-foreground: #804818;
+}
+
+/* ─── 베이스 스타일 ─── */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    box-sizing: border-box;
+  }
+
+  html {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}

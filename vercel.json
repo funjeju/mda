@@ -1,0 +1,40 @@
+{
+  "buildCommand": "cd apps/web && npm run build",
+  "outputDirectory": "apps/web/.next",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/apps/web/$1" }
+  ],
+  "crons": [
+    {
+      "path": "/api/notifications/calendar-reminder",
+      "schedule": "*/5 * * * *",
+      "method": "GET"
+    }
+  ],
+  "env": {
+    "NEXT_PUBLIC_FIREBASE_API_KEY":            "@firebase_api_key",
+    "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN":        "@firebase_auth_domain",
+    "NEXT_PUBLIC_FIREBASE_PROJECT_ID":         "@firebase_project_id",
+    "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET":     "@firebase_storage_bucket",
+    "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID":"@firebase_messaging_sender_id",
+    "NEXT_PUBLIC_FIREBASE_APP_ID":             "@firebase_app_id",
+    "NEXT_PUBLIC_FIREBASE_VAPID_KEY":          "@firebase_vapid_key",
+    "NEXT_PUBLIC_GOOGLE_CLIENT_ID":            "@google_client_id",
+    "FIREBASE_SERVICE_ACCOUNT_JSON":            "@firebase_service_account_json",
+    "FIREBASE_PROJECT_ID":                     "@firebase_project_id",
+    "FIREBASE_CLIENT_EMAIL":                   "@firebase_client_email",
+    "FIREBASE_PRIVATE_KEY":                    "@firebase_private_key",
+    "GEMINI_API_KEY":                          "@gemini_api_key",
+    "ANTHROPIC_API_KEY":                       "@anthropic_api_key",
+    "OPENAI_API_KEY":                          "@openai_api_key",
+    "RESEND_API_KEY":                          "@resend_api_key",
+    "STRIPE_SECRET_KEY":                       "@stripe_secret_key",
+    "STRIPE_WEBHOOK_SECRET":                   "@stripe_webhook_secret",
+    "NEXT_PUBLIC_STRIPE_PLUS_PRICE_ID":        "@stripe_plus_price_id",
+    "NEXT_PUBLIC_STRIPE_TEAM_PRICE_ID":        "@stripe_team_price_id",
+    "CRON_SECRET":                             "@cron_secret",
+    "INTERNAL_API_SECRET":                     "@internal_api_secret"
+  }
+}
