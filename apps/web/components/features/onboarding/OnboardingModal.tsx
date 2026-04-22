@@ -26,9 +26,10 @@ interface Props {
   teamId: string;
   userId: string;
   userName: string | null;
+  onDismiss?: () => void;
 }
 
-export function OnboardingModal({ teamId, userId, userName }: Props) {
+export function OnboardingModal({ teamId, userId, userName, onDismiss }: Props) {
   const [step, setStep] = useState(0);
   const [selectedTemplate, setSelectedTemplate] = useState<number | null>(null);
   const [creating, setCreating] = useState(false);
@@ -99,6 +100,15 @@ export function OnboardingModal({ teamId, userId, userName }: Props) {
             >
               시작하기 →
             </button>
+            {onDismiss && (
+              <button
+                onClick={onDismiss}
+                className="w-full text-xs py-1"
+                style={{ color: C.ink300 }}
+              >
+                나중에 하기
+              </button>
+            )}
           </>
         ) : (
           <>

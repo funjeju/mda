@@ -74,7 +74,8 @@ function HomeContent({
     }
   }, []);
 
-  const showOnboarding = !projectsLoading && projects.length === 0;
+  const [onboardingDismissed, setOnboardingDismissed] = useState(false);
+  const showOnboarding = !onboardingDismissed && !projectsLoading && projects.length === 0;
   const firstName = user.displayName?.split(' ')[0] ?? '사용자';
   const activeProjectNames = projects.filter((p) => p.status === 'active').map((p) => p.title);
   const todayTaskTitles = tasks.slice(0, 10).map((t) => t.title);
@@ -110,7 +111,7 @@ function HomeContent({
   return (
     <>
       {showOnboarding && (
-        <OnboardingModal teamId={teamId} userId={user.uid} userName={user.displayName} />
+        <OnboardingModal teamId={teamId} userId={user.uid} userName={user.displayName} onDismiss={() => setOnboardingDismissed(true)} />
       )}
       <div className="max-w-2xl mx-auto px-4 py-8 flex flex-col gap-4">
         {/* 헤더 */}
