@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'stripe 패키지 미설치' }, { status: 503 });
   }
 
-  const stripe = new Stripe(stripeKey, { apiVersion: '2025-01-27.acacia' });
+  const stripe = new Stripe(stripeKey, { apiVersion: '2026-03-25.dahlia' });
   const body = await req.text();
   const sig = req.headers.get('stripe-signature') ?? '';
 
