@@ -58,7 +58,7 @@ function useMyTeams(userId: string) {
     // 현재 구조상 팀마다 members/{userId} 형태이므로 collectionGroup 사용
     import('firebase/firestore').then(({ doc, getDoc }) => {
       getDoc(doc(db, 'users', userId)).then((snap) => {
-        if (!snap.exists()) return;
+        if (!snap.exists) return;
         const data = snap.data();
         const teamIds: string[] = [];
         if (data['primary_team_id']) teamIds.push(data['primary_team_id'] as string);

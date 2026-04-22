@@ -33,7 +33,7 @@ export function useNotificationPrefs(userId: string) {
   useEffect(() => {
     if (!userId) return;
     getDoc(doc(db, 'users', userId, 'settings', 'notification_prefs')).then((snap) => {
-      if (snap.exists()) {
+      if (snap.exists) {
         setPrefs({ ...DEFAULT_PREFS, ...(snap.data() as Partial<NotificationPrefs>) });
       }
       setLoading(false);

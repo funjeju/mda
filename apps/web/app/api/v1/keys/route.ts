@@ -68,7 +68,7 @@ export async function DELETE(req: NextRequest) {
 
   const ref = adminDb.collection('api_keys').doc(keyId);
   const snap = await ref.get();
-  if (!snap.exists() || snap.data()?.['user_id'] !== uid) {
+  if (!snap.exists || snap.data()?.['user_id'] !== uid) {
     return NextResponse.json({ error: '키를 찾을 수 없습니다' }, { status: 404 });
   }
 

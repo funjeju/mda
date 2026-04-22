@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
   const fcmTokens = fcmTokensSnap.docs.map((d) => d.data()['token'] as string).filter(Boolean);
 
   // DND 체크 (F-093)
-  if (prefsSnap.exists()) {
+  if (prefsSnap.exists) {
     const p = prefsSnap.data() as {
       dnd_enabled?: boolean; dnd_start?: number; dnd_end?: number;
       task_due?: boolean; evening_report?: boolean; team_activity?: boolean;

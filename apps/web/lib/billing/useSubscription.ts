@@ -66,7 +66,7 @@ export function useSubscription(userId: string) {
     return onSnapshot(
       doc(db, 'users', userId, 'settings', 'subscription'),
       (snap) => {
-        if (snap.exists()) {
+        if (snap.exists) {
           const data = snap.data();
           setSubscription({
             tier: (data['tier'] as PlanTier) ?? 'free',

@@ -20,7 +20,7 @@ export async function initUserIfNeeded(firebaseUser: FirebaseAuthUser): Promise<
   const userRef = userDoc(firebaseUser.uid);
   const snap = await getDoc(userRef);
 
-  if (snap.exists()) {
+  if (snap.exists) {
     return snap.data()['primary_team_id'] as string;
   }
 
