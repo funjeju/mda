@@ -44,8 +44,8 @@ export function useTeamMembers(teamId: string) {
         raw.map(async (m) => {
           try {
             const userRef = await getDoc(userDoc(m.user_id));
-            if (userRef.exists) {
-              const u = userRef.data();
+            if (userRef.exists()) {
+              const u = userRef.data()!;
               return { ...m, display_name: u['display_name'], email: u['email'], avatar_url: u['avatar_url'] };
             }
           } catch {

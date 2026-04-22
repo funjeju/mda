@@ -10,6 +10,7 @@ import { StickerButton } from '../stickers/StickerPicker';
 import { CommentThread } from '../comments/CommentThread';
 import { FileUploader } from '../attachments/FileUploader';
 import { requestGoogleToken } from '../../../lib/auth/requestGoogleToken';
+import { fetchWithAuth } from '../../../lib/auth/fetchWithAuth';
 
 const RECURRENCE_OPTIONS: { value: RecurrenceFrequency; label: string; icon: string }[] = [
   { value: 'none',     label: '반복 없음', icon: '—'  },
@@ -136,6 +137,7 @@ export function TaskDetailPanel({ task, onClose, onUpdate, onDelete, teamId, use
 
   // F-113: MDA → Google Calendar 내보내기
   async function handleExportToCalendar() {
+    if (!task) return;
     try {
       const accessToken = await requestGoogleToken('https://www.googleapis.com/auth/calendar.events');
 

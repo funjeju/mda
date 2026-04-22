@@ -35,8 +35,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (firebaseUser) {
         // 이미 존재하는 경우 current_team_id 사용 (팀 전환 후에도 유지)
         const snap = await getDoc(userDoc(firebaseUser.uid));
-        if (snap.exists) {
-          const data = snap.data();
+        if (snap.exists()) {
+          const data = snap.data()!;
           setTeamId((data['current_team_id'] ?? data['primary_team_id']) as string);
         } else {
           const tid = await initUserIfNeeded(firebaseUser);

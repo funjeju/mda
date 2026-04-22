@@ -49,7 +49,7 @@ export function AudioFileImporter({
       if (!transcript) { setError('텍스트 변환 실패'); return; }
 
       if (teamId && userId) {
-        const logId = await saveInputLog(teamId, userId, 'voice', transcript, { transcript, source: 'file_import', filename: file.name });
+        const logId = await saveInputLog(teamId, userId, 'voice', transcript, { transcript });
         await updateInputLogResult(teamId, logId, null, false);
       }
 
