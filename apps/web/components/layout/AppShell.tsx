@@ -185,11 +185,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       )}
 
       {/* 컨텐츠 */}
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 pb-16 md:pb-0">{children}</main>
 
       {/* 모바일 하단 탭 */}
       <nav
-        className="md:hidden flex items-center justify-around py-2 sticky bottom-0 z-20"
+        className="md:hidden flex items-center justify-around py-2 fixed bottom-0 left-0 right-0 z-20"
         style={{ background: C.cream, borderTop: `1px solid ${C.beige}` }}
       >
         {MOBILE_NAV.map((item) => {
