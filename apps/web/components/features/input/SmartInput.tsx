@@ -9,7 +9,6 @@ import { useEmbeddingMatch } from '@/lib/ai/useEmbeddingMatch';
 import { fetchPersonalizationHints } from '@/lib/ai/personalization';
 import type { PersonalizationHints } from '@/lib/ai/personalization';
 import type { ClassificationResult, Segment } from '@/lib/ai/schemas';
-import { Button } from '@/components/ui/button';
 import { VoiceButton, AudioFileImporter } from './VoiceButton';
 
 const C = {
@@ -254,14 +253,15 @@ export function SmartInput({ teamId, userId, activeProjectNames = [], todayTaskT
               userId={userId}
             />
           </div>
-          <Button
-            size="sm"
+          <button
+            type="button"
             onClick={handleSubmit}
             disabled={!text.trim() || phase !== 'idle'}
+            className="px-3 py-1.5 rounded-lg text-xs font-medium transition-opacity disabled:opacity-40"
             style={{ background: C.mustard, color: '#fff', border: 'none' }}
           >
             {phase === 'classifying' ? '분석 중...' : '입력'}
-          </Button>
+          </button>
         </div>
       </div>
 
@@ -294,14 +294,23 @@ export function SmartInput({ teamId, userId, activeProjectNames = [], todayTaskT
           </div>
 
           <div className="flex gap-2 justify-end">
-            <Button variant="ghost" size="sm" onClick={reset} style={{ color: C.ink500 }}>
+            <button
+              type="button"
+              onClick={reset}
+              className="px-3 py-1.5 rounded-lg text-xs font-medium"
+              style={{ color: C.ink500, background: 'transparent', border: 'none' }}
+            >
               취소
-            </Button>
-            <Button size="sm" onClick={handleConfirmAll}
+            </button>
+            <button
+              type="button"
+              onClick={handleConfirmAll}
               disabled={saving}
-              style={{ background: C.mustard, color: '#fff', border: 'none' }}>
+              className="px-3 py-1.5 rounded-lg text-xs font-medium transition-opacity disabled:opacity-40"
+              style={{ background: C.mustard, color: '#fff', border: 'none' }}
+            >
               {saving ? '저장 중...' : '확인 저장'}
-            </Button>
+            </button>
           </div>
         </div>
       )}
