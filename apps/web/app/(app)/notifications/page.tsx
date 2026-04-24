@@ -95,7 +95,7 @@ function NotificationsContent({ userId }: { userId: string }) {
         }),
       );
       setLoading(false);
-    });
+    }, () => setLoading(false));
   }, [userId]);
 
   async function markRead(id: string) {

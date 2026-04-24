@@ -56,7 +56,7 @@ export function useTeamMembers(teamId: string) {
       );
       setMembers(enriched);
       setLoading(false);
-    });
+    }, () => setLoading(false));
   }, [teamId]);
 
   return { members, loading };
@@ -81,7 +81,7 @@ export function useTeamInvites(teamId: string) {
           })
           .filter((inv) => inv.expires_at > now),
       );
-    });
+    }, () => {});
   }, [teamId]);
 
   async function deleteInvite(inviteId: string) {

@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import {
   onSnapshot, addDoc, updateDoc, doc,
-  serverTimestamp, query, where, orderBy,
+  serverTimestamp, query, where,
 } from 'firebase/firestore';
 import { v4 as uuidv4 } from 'uuid';
 import type { Task } from '@mda/shared';

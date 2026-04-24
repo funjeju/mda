@@ -56,7 +56,7 @@ export function useProjectProgress(teamId: string, projectId: string, sections: 
           progress_percent: projectProgress,
           status: sectionsTotal > 0 && sectionsCompleted === sectionsTotal ? 'completed' : 'active',
         }).catch(() => {});
-      });
+      }, () => {});
       unsubscribers.push(unsub);
     }
 

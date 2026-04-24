@@ -46,9 +46,26 @@ function FocusTimer() {
   const [mode, setMode] = useState<Mode>('focus');
   const [running, setRunning] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(25 * 60);
-  const [sessions, setSessions] = useState(0);
-  const [task, setTask] = useState('');
+  const [sessions, setSessions] = useState(() => {
+    if (typeof window === 'undefined') return 0;
+    const saved = localStorage.getItem('focus_sessions_date');
+    const today = new Date().toDateString();
+    if (saved !== today) { localStorage.removeItem('focus_sessions'); return 0; }
+    return parseInt(localStorage.getItem('focus_sessions') ?? '0', 10);
+  });
+  const [task, setTask] = useState(() =>
+    typeof window !== 'undefined' ? (localStorage.getItem('focus_task') ?? '') : '',
+  );
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    localStorage.setItem('focus_sessions', String(sessions));
+    localStorage.setItem('focus_sessions_date', new Date().toDateString());
+  }, [sessions]);
+
+  useEffect(() => {
+    localStorage.setItem('focus_task', task);
+  }, [task]);
 
   const currentMode = MODES.find((m) => m.key === mode)!;
   const totalSeconds = currentMode.minutes * 60;
