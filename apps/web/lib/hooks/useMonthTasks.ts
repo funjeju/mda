@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { onSnapshot, query, where, orderBy } from 'firebase/firestore';
+import { onSnapshot, query, where } from 'firebase/firestore';
 import type { Task } from '@mda/shared';
 import { independentTasksCol } from '../firestore/collections';
 import { taskConverter } from '../firestore/converters';
@@ -20,14 +20,12 @@ export function useMonthTasks(teamId: string, userId: string, year: number, mont
       independentTasksCol(teamId).withConverter(taskConverter),
       where('deleted_at', '==', null),
       where('created_by', '==', userId),
-      orderBy('created_at', 'desc'),
     );
 
     return onSnapshot(q, (snap) => {
-      const all = snap.docs.map((d) => d.data());
-      setTasks(all);
+      setTasks(snap.docs.map((d) => d.data()));
       setLoading(false);
-    });
+    }, () => setLoading(false));
   }, [teamId, userId, year, month]);
 
   function getTasksForDate(date: Date): Task[] {

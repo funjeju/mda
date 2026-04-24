@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import {
   onSnapshot, addDoc, updateDoc, doc,
-  serverTimestamp, query, where, orderBy,
+  serverTimestamp, query, where,
 } from 'firebase/firestore';
 import { v4 as uuidv4 } from 'uuid';
 import { personContactsCol } from '../firestore/collections';
@@ -32,10 +32,9 @@ export function useContacts(teamId: string, userId: string) {
       personContactsCol(teamId),
       where('deleted_at', '==', null),
       where('created_by', '==', userId),
-      orderBy('last_mentioned_at', 'desc'),
     );
     return onSnapshot(q, (snap) => {
-      setContacts(snap.docs.map((d) => {
+      const items = snap.docs.map((d) => {
         const data = d.data();
         return {
           id: d.id,
@@ -51,9 +50,11 @@ export function useContacts(teamId: string, userId: string) {
           last_mentioned_at: data.last_mentioned_at?.toDate?.() ?? null,
           created_at: data.created_at?.toDate?.() ?? null,
         } as ContactDoc;
-      }));
+      });
+      items.sort((a, b) => (b.last_mentioned_at?.getTime() ?? 0) - (a.last_mentioned_at?.getTime() ?? 0));
+      setContacts(items);
       setLoading(false);
-    });
+    }, () => setLoading(false));
   }, [teamId, userId]);
 
   const createContact = useCallback(

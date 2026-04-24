@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState, useEffect } from 'react';
 import type { Task } from '@mda/shared';
 
 const C = {
@@ -17,7 +17,6 @@ const C = {
 };
 
 const ROW_H = 36;
-const LABEL_W = 200;
 const PRIORITY_COLOR: Record<string, string> = {
   urgent: C.coral,
   high:   C.peach,
@@ -37,10 +36,22 @@ interface Props {
 }
 
 export function GanttChart({ tasks, title, onTaskClick }: Props) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [hovered, setHovered] = useState<string | null>(null);
   const [zoom, setZoom] = useState<ZoomLevel>('day');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [labelW, setLabelW] = useState(160);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const observer = new ResizeObserver(([entry]) => {
+      const w = entry!.contentRect.width;
+      setLabelW(w < 400 ? 100 : w < 600 ? 130 : 160);
+    });
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   const DAY_W = ZOOM_DAY_W[zoom];
 
@@ -50,7 +61,6 @@ export function GanttChart({ tasks, title, onTaskClick }: Props) {
     return tasks.filter((t) => t.status !== 'done');
   }, [tasks, statusFilter]);
 
-  // 날짜 범위 계산
   const { minDate, days } = useMemo(() => {
     const dates: Date[] = [];
     tasks.forEach((t) => {
@@ -63,13 +73,11 @@ export function GanttChart({ tasks, title, onTaskClick }: Props) {
         dates.push(d?.toDate?.() ?? new Date(t.start_date as unknown as string));
       }
     });
-
-    const now = new Date(); now.setHours(0,0,0,0);
+    const now = new Date(); now.setHours(0, 0, 0, 0);
     if (dates.length === 0) {
       const end = new Date(now); end.setDate(end.getDate() + 29);
       return buildDays(now, end);
     }
-
     const sorted = dates.map(startOf).sort((a, b) => a.getTime() - b.getTime());
     const min = new Date(sorted[0]!); min.setDate(min.getDate() - 3);
     const max = new Date(sorted[sorted.length - 1]!); max.setDate(max.getDate() + 7);
@@ -84,7 +92,7 @@ export function GanttChart({ tasks, title, onTaskClick }: Props) {
   }
 
   function startOf(d: Date) {
-    const r = new Date(d); r.setHours(0,0,0,0); return r;
+    const r = new Date(d); r.setHours(0, 0, 0, 0); return r;
   }
 
   function dayIndex(d: Date): number {
@@ -95,7 +103,6 @@ export function GanttChart({ tasks, title, onTaskClick }: Props) {
   const todayIdx = dayIndex(today);
   const totalW = days.length * DAY_W;
 
-  // 월 헤더 그룹
   const monthGroups = useMemo(() => {
     const groups: { label: string; startDay: number; count: number }[] = [];
     let curMonth = -1, curStart = 0;
@@ -115,10 +122,9 @@ export function GanttChart({ tasks, title, onTaskClick }: Props) {
   }, [days]);
 
   function formatMonth(d: Date) {
-    return d.toLocaleDateString('ko-KR', { year: 'numeric', month: 'short' });
+    return d.toLocaleDateString('ko-KR', { month: 'short', year: '2-digit' });
   }
 
-  // 섹션별 그룹화
   const grouped = useMemo(() => {
     const sectionMap = new Map<string, Task[]>();
     const noSection: Task[] = [];
@@ -155,8 +161,7 @@ export function GanttChart({ tasks, title, onTaskClick }: Props) {
   const isOverdue = (task: Task) => {
     if (task.status === 'done' || !task.due_date) return false;
     const d = task.due_date as unknown as { toDate?: () => Date };
-    const due = startOf(d?.toDate?.() ?? new Date(task.due_date as unknown as string));
-    return due < today;
+    return startOf(d?.toDate?.() ?? new Date(task.due_date as unknown as string)) < today;
   };
 
   if (tasks.length === 0) {
@@ -169,26 +174,24 @@ export function GanttChart({ tasks, title, onTaskClick }: Props) {
   }
 
   return (
-    <div className="rounded-2xl overflow-hidden" style={{ background: C.cream, border: `1px solid ${C.beige}` }}>
+    <div ref={containerRef} className="rounded-2xl overflow-hidden" style={{ background: C.cream, border: `1px solid ${C.beige}` }}>
       {/* 툴바 */}
-      <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: `1px solid ${C.beige}` }}>
-        <p className="text-sm font-semibold" style={{ color: C.ink900 }}>{title ?? '간트 차트'}</p>
-        <div className="flex items-center gap-2">
-          {/* 상태 필터 */}
-          <div className="flex rounded-xl overflow-hidden" style={{ border: `1px solid ${C.beige}` }}>
-            {([['all', '전체'], ['active', '진행중'], ['done', '완료']] as const).map(([v, l]) => (
+      <div className="flex items-center justify-between gap-2 px-3 py-2 flex-wrap" style={{ borderBottom: `1px solid ${C.beige}` }}>
+        <p className="text-sm font-semibold truncate" style={{ color: C.ink900 }}>{title ?? '간트 차트'}</p>
+        <div className="flex items-center gap-1.5 flex-shrink-0">
+          <div className="flex rounded-lg overflow-hidden" style={{ border: `1px solid ${C.beige}` }}>
+            {([['all', '전체'], ['active', '진행'], ['done', '완료']] as const).map(([v, l]) => (
               <button key={v} onClick={() => setStatusFilter(v)}
-                className="px-2.5 py-1 text-xs font-medium"
+                className="px-2 py-1 text-xs font-medium"
                 style={{ background: statusFilter === v ? C.mustard : C.cream, color: statusFilter === v ? '#fff' : C.ink500 }}>
                 {l}
               </button>
             ))}
           </div>
-          {/* 줌 */}
-          <div className="flex rounded-xl overflow-hidden" style={{ border: `1px solid ${C.beige}` }}>
-            {([['day', '일'], ['week', '축소']] as const).map(([v, l]) => (
+          <div className="flex rounded-lg overflow-hidden" style={{ border: `1px solid ${C.beige}` }}>
+            {([['day', '일'], ['week', '축']] as const).map(([v, l]) => (
               <button key={v} onClick={() => setZoom(v)}
-                className="px-2.5 py-1 text-xs font-medium"
+                className="px-2 py-1 text-xs font-medium"
                 style={{ background: zoom === v ? C.mustard : C.cream, color: zoom === v ? '#fff' : C.ink500 }}>
                 {l}
               </button>
@@ -198,14 +201,14 @@ export function GanttChart({ tasks, title, onTaskClick }: Props) {
       </div>
 
       <div className="overflow-x-auto" ref={scrollRef}>
-        <div style={{ minWidth: LABEL_W + totalW }}>
+        <div style={{ minWidth: labelW + totalW }}>
           {/* 헤더 — 월 */}
-          <div className="flex sticky top-0 z-10" style={{ background: C.cream, borderBottom: `1px solid ${C.beige}` }}>
-            <div style={{ width: LABEL_W, flexShrink: 0 }} />
+          <div className="flex" style={{ background: C.cream, borderBottom: `1px solid ${C.beige}` }}>
+            <div style={{ width: labelW, flexShrink: 0 }} />
             <div className="flex" style={{ width: totalW }}>
               {monthGroups.map((g) => (
-                <div key={g.startDay} className="text-xs font-medium flex items-center px-2"
-                  style={{ width: g.count * DAY_W, color: C.ink500, borderLeft: `1px solid ${C.beige}`, height: 24 }}>
+                <div key={g.startDay} className="text-xs font-medium flex items-center px-1.5"
+                  style={{ width: g.count * DAY_W, color: C.ink500, borderLeft: `1px solid ${C.beige}`, height: 22, flexShrink: 0 }}>
                   {g.label}
                 </div>
               ))}
@@ -213,21 +216,21 @@ export function GanttChart({ tasks, title, onTaskClick }: Props) {
           </div>
 
           {/* 헤더 — 일 */}
-          <div className="flex sticky top-6 z-10" style={{ background: C.cream, borderBottom: `1px solid ${C.beige}` }}>
-            <div style={{ width: LABEL_W, flexShrink: 0 }} />
+          <div className="flex" style={{ background: C.cream, borderBottom: `1px solid ${C.beige}` }}>
+            <div style={{ width: labelW, flexShrink: 0 }} />
             <div className="flex" style={{ width: totalW }}>
               {days.map((d, i) => {
                 const isToday = i === todayIdx;
                 const isWeekend = d.getDay() === 0 || d.getDay() === 6;
                 return (
-                  <div key={i} className="flex items-center justify-center text-xs"
+                  <div key={i} className="flex items-center justify-center text-xs flex-shrink-0"
                     style={{
-                      width: DAY_W, height: 22,
+                      width: DAY_W, height: 20,
                       color: isToday ? C.mustard : isWeekend ? C.ink300 : C.ink500,
                       fontWeight: isToday ? 700 : 400,
                       borderLeft: `1px solid ${C.beige}`,
                       background: isToday ? C.mustard + '10' : 'transparent',
-                      fontSize: zoom === 'week' ? 9 : 11,
+                      fontSize: zoom === 'week' ? 9 : 10,
                     }}>
                     {zoom === 'week' ? (d.getDate() % 7 === 0 || i === 0 ? d.getDate() : '') : d.getDate()}
                   </div>
@@ -236,23 +239,21 @@ export function GanttChart({ tasks, title, onTaskClick }: Props) {
             </div>
           </div>
 
-          {/* 섹션 그룹 행 */}
+          {/* 섹션 그룹 */}
           {grouped.map(({ sectionId, label, tasks: groupTasks }) => (
             <div key={sectionId ?? '__none'}>
-              {/* 섹션 헤더 (섹션이 2개 이상일 때만) */}
               {grouped.length > 1 && (
-                <div className="flex items-center sticky left-0"
-                  style={{ height: 24, background: C.beige, borderBottom: `1px solid ${C.beige}` }}>
-                  <div style={{ width: LABEL_W, flexShrink: 0 }}>
-                    <span className="text-[10px] font-semibold px-3 uppercase tracking-wider" style={{ color: C.ink500 }}>
+                <div className="flex items-center"
+                  style={{ height: 22, background: C.beige, borderBottom: `1px solid ${C.beige}` }}>
+                  <div style={{ width: labelW, flexShrink: 0 }}>
+                    <span className="text-[10px] font-semibold px-2 uppercase tracking-wider" style={{ color: C.ink500 }}>
                       {label}
                     </span>
                   </div>
-                  <div style={{ width: totalW, height: 24 }} />
+                  <div style={{ width: totalW, height: 22 }} />
                 </div>
               )}
 
-              {/* 태스크 행 */}
               {groupTasks.map((task) => {
                 const { startIdx, endIdx } = taskBar(task);
                 const done = task.status === 'done';
@@ -276,41 +277,39 @@ export function GanttChart({ tasks, title, onTaskClick }: Props) {
                     }}
                     onMouseEnter={() => setHovered(task.id)}
                     onMouseLeave={() => setHovered(null)}
+                    onTouchStart={() => setHovered(task.id)}
+                    onTouchEnd={() => setHovered(null)}
                     onClick={() => onTaskClick?.(task)}
                   >
                     {/* 레이블 */}
-                    <div className="flex items-center gap-1.5 px-3 flex-shrink-0" style={{ width: LABEL_W }} title={task.title}>
+                    <div className="flex items-center gap-1 px-2 flex-shrink-0" style={{ width: labelW }} title={task.title}>
                       <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: barColor }} />
                       <span className="text-xs truncate"
                         style={{
                           color: done ? C.ink300 : overdue ? C.coral : C.ink900,
                           textDecoration: done ? 'line-through' : 'none',
-                          maxWidth: LABEL_W - 28,
+                          maxWidth: labelW - 24,
                         }}>
                         {overdue && !done && '⚠ '}{task.title}
                       </span>
                     </div>
 
-                    {/* 간트 바 영역 */}
-                    <div className="relative" style={{ width: totalW, height: ROW_H }}>
-                      {/* 주말 배경 */}
+                    {/* 간트 바 */}
+                    <div className="relative flex-shrink-0" style={{ width: totalW, height: ROW_H }}>
                       {days.map((d, i) =>
                         (d.getDay() === 0 || d.getDay() === 6) ? (
                           <div key={i} className="absolute inset-y-0"
                             style={{ left: i * DAY_W, width: DAY_W, background: C.beige + '40' }} />
                         ) : null,
                       )}
-                      {/* 오늘 선 */}
                       {todayIdx >= 0 && todayIdx < days.length && (
                         <div className="absolute inset-y-0 z-10"
                           style={{ left: todayIdx * DAY_W + DAY_W / 2, width: 1.5, background: C.mustard + '80' }} />
                       )}
-                      {/* 간트 바 */}
                       {barLeft !== null && (
-                        <div
-                          className="absolute top-1/2 rounded-full"
+                        <div className="absolute top-1/2 rounded-full"
                           style={{
-                            left: barLeft + 2, width: barWidth - 4, height: 14,
+                            left: barLeft + 2, width: barWidth - 4, height: 12,
                             transform: 'translateY(-50%)',
                             background: barColor + (done ? '60' : 'CC'),
                           }}
@@ -326,7 +325,7 @@ export function GanttChart({ tasks, title, onTaskClick }: Props) {
       </div>
 
       {/* 범례 */}
-      <div className="flex items-center gap-4 px-4 py-2 flex-wrap" style={{ borderTop: `1px solid ${C.beige}` }}>
+      <div className="flex items-center gap-3 px-3 py-2 flex-wrap" style={{ borderTop: `1px solid ${C.beige}` }}>
         {Object.entries(PRIORITY_COLOR).map(([p, c]) => (
           <div key={p} className="flex items-center gap-1">
             <div className="w-3 h-2 rounded-full" style={{ background: c }} />
@@ -341,7 +340,7 @@ export function GanttChart({ tasks, title, onTaskClick }: Props) {
         </div>
         <div className="flex items-center gap-1">
           <div className="w-3 h-2 rounded-full" style={{ background: C.coral }} />
-          <span className="text-xs" style={{ color: C.ink300 }}>기한 초과</span>
+          <span className="text-xs" style={{ color: C.ink300 }}>초과</span>
         </div>
       </div>
     </div>
