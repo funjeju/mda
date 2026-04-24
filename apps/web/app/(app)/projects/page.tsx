@@ -373,8 +373,6 @@ function ProjectCard({
       <MandaraGrid
         project={project}
         sections={sections}
-        cellSize={80}
-        gap={4}
         onProjectClick={onClick}
         onCellClick={() => onClick()}
       />

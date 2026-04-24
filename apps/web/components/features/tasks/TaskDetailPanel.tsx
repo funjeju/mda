@@ -183,7 +183,7 @@ export function TaskDetailPanel({ task, onClose, onUpdate, onDelete, teamId, use
 
       {/* 패널 */}
       <div
-        className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-md flex flex-col overflow-hidden"
+        className="fixed right-0 top-0 bottom-0 z-50 w-full sm:max-w-md flex flex-col overflow-hidden"
         style={{ background: C.ivory, borderLeft: `1px solid ${C.beige}` }}
       >
         {/* 헤더 */}

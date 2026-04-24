@@ -2,7 +2,7 @@
 
 import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { onSnapshot, query, where, orderBy } from 'firebase/firestore';
+import { onSnapshot, query, where } from 'firebase/firestore';
 import { useAuth } from '../../../../lib/auth/AuthContext';
 import { useSections, useProjects } from '../../../../lib/hooks/useProjects';
 import { MandaraGrid } from '../../../../components/features/mandarart/MandaraGrid';
@@ -82,9 +82,16 @@ function ProjectDetail({
     const q = query(
       tasksCol(teamId, projectId).withConverter(taskConverter),
       where('deleted_at', '==', null),
-      orderBy('created_at', 'asc'),
     );
-    return onSnapshot(q, (snap) => setProjectTasks(snap.docs.map((d) => d.data())));
+    return onSnapshot(q, (snap) => {
+      const tasks = snap.docs.map((d) => d.data());
+      tasks.sort((a, b) => {
+        const aT = (a.created_at as unknown as { toDate?: () => Date })?.toDate?.()?.getTime() ?? 0;
+        const bT = (b.created_at as unknown as { toDate?: () => Date })?.toDate?.()?.getTime() ?? 0;
+        return aT - bT;
+      });
+      setProjectTasks(tasks);
+    }, () => {});
   }, [teamId, projectId]);
   const [sectionTitle, setSectionTitle] = useState('');
   const [sectionEmoji, setSectionEmoji] = useState('');
@@ -204,7 +211,7 @@ function ProjectDetail({
       </div>
 
       {/* 뷰 탭 */}
-      <div className="flex rounded-xl overflow-hidden mb-6" style={{ border: `1px solid ${C.beige}`, width: 'fit-content' }}>
+      <div className="flex rounded-xl overflow-x-auto mb-6 max-w-full" style={{ border: `1px solid ${C.beige}`, width: 'fit-content' }}>
         {([['mandarart', '🔷 만다라트'], ['gantt', '📊 간트'], ['pivot', '🔀 피벗']] as const).map(([tab, label]) => (
           <button
             key={tab}
@@ -230,8 +237,6 @@ function ProjectDetail({
         <MandaraGrid
           project={project}
           sections={sections}
-          cellSize={110}
-          gap={8}
           onCellClick={handleCellClick}
         />
 

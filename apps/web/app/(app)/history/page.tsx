@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { onSnapshot, query, orderBy, limit, where } from 'firebase/firestore';
+import { onSnapshot, query, limit, where } from 'firebase/firestore';
 import { useAuth } from '../../../lib/auth/AuthContext';
 import { inputLogsCol } from '../../../lib/firestore/collections';
 import { AppShell } from '../../../components/layout/AppShell';
@@ -74,25 +74,24 @@ function HistoryContent({ teamId, userId }: { teamId: string; userId: string }) 
     const q = query(
       inputLogsCol(teamId),
       where('created_by', '==', userId),
-      orderBy('created_at', 'desc'),
       limit(100),
     );
     return onSnapshot(q, (snap) => {
-      setLogs(
-        snap.docs.map((d) => ({
-          id: d.id,
-          type: (d.data().type ?? 'text') as InputLogType,
-          raw_text: d.data().raw_text ?? '',
-          audio_url: d.data().audio_url ?? null,
-          transcript: d.data().transcript ?? null,
-          ai_result: d.data().ai_result ?? null,
-          processed: d.data().processed ?? false,
-          created_at: d.data().created_at?.toDate?.() ?? null,
-          created_by: d.data().created_by ?? '',
-        })),
-      );
+      const items = snap.docs.map((d) => ({
+        id: d.id,
+        type: (d.data().type ?? 'text') as InputLogType,
+        raw_text: d.data().raw_text ?? '',
+        audio_url: d.data().audio_url ?? null,
+        transcript: d.data().transcript ?? null,
+        ai_result: d.data().ai_result ?? null,
+        processed: d.data().processed ?? false,
+        created_at: d.data().created_at?.toDate?.() ?? null,
+        created_by: d.data().created_by ?? '',
+      }));
+      items.sort((a, b) => (b.created_at?.getTime() ?? 0) - (a.created_at?.getTime() ?? 0));
+      setLogs(items);
       setLoading(false);
-    });
+    }, () => setLoading(false));
   }, [teamId, userId]);
 
   const filtered = filterType === 'all' ? logs : logs.filter((l) => l.type === filterType);
